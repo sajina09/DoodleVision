@@ -129,7 +129,7 @@ const DrawingBoard = () => {
               textShadow: "0 0 8px #00ffffaa",
             }}
           >
-            Prediction: {prediction ? prediction : "None"}
+            Prediction: {prediction ? prediction.charAt(0).toUpperCase() + prediction.slice(1).toLowerCase() : "None"}
           </div>
 
           <button

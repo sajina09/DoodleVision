@@ -31,7 +31,7 @@ function App() {
           color: "#00ffff",
         }}
       >
-        🎨 Sketch Portal 🎨
+        🎨 Model Doodle 🎨
       </h3>
 
       {/* ❓ About Us Button */}
@@ -114,8 +114,8 @@ function App() {
           >
             <h2 style={{ marginBottom: "20px" }}> What is this? </h2>
             <p style={{ fontSize: "16px", lineHeight: "1.6", color: "#ccc" }}>
-              Welcome to the Sketch Portal! 🎨 Here you draw doodles and watch
-              an AI model decide what it looks like, and then the Sketchy guru
+              Welcome to the Model Doodle! 🎨 Here you draw doodles and watch an
+              AI model decide what it looks like, and then the Sketchy guru
               generates its interpretation! Built with love, neon dreams, and
               lots of coffee ☕✨
               <br />
@@ -186,7 +186,7 @@ function App() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 style={{ marginBottom: "20px" }}>📤 Share Sketch Portal</h2>
+            <h2 style={{ marginBottom: "20px" }}>📤 Share Model Doodle</h2>
             <p style={{ fontSize: "16px", lineHeight: "1.6", color: "#ccc" }}>
               Scan this QR code to share with your friends!
             </p>
