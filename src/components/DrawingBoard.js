@@ -27,6 +27,19 @@ const DrawingBoard = () => {
     }
   }, []);
 
+  function showErrorNotification(message) {
+    const notification = document.createElement("div");
+    notification.className = "error-notification";
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+      notification.remove();
+    }, 4000);
+  }
+
   // 🚀 Predict and Fetch images
   const handlePredict = async () => {
     if (!canvasRef.current) return;
@@ -38,7 +51,7 @@ const DrawingBoard = () => {
       formData.append("file", blob, "doodle.png");
 
       try {
-        // First predict
+        // First predict -
         const predictResponse = await fetch("http://127.0.0.1:8000/predict", {
           method: "POST",
           body: formData,
@@ -50,6 +63,7 @@ const DrawingBoard = () => {
         // await fetchGeneratedAndReconstructedImage(blob, predictData.prediction);
       } catch (error) {
         console.error("Prediction or Generation error:", error);
+        showErrorNotification("Umm... there seems to be an error 😬");
       } finally {
         setLoading(false);
       }
