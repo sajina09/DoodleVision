@@ -47,7 +47,7 @@ const DrawingBoard = () => {
         setPrediction(predictData.prediction);
 
         // Then fetch generated and reconstructed
-        await fetchGeneratedAndReconstructedImage(blob, predictData.prediction);
+        // await fetchGeneratedAndReconstructedImage(blob, predictData.prediction);
       } catch (error) {
         console.error("Prediction or Generation error:", error);
       } finally {
@@ -129,7 +129,11 @@ const DrawingBoard = () => {
               textShadow: "0 0 8px #00ffffaa",
             }}
           >
-            Prediction: {prediction ? prediction.charAt(0).toUpperCase() + prediction.slice(1).toLowerCase() : "None"}
+            Prediction:{" "}
+            {prediction
+              ? prediction.charAt(0).toUpperCase() +
+                prediction.slice(1).toLowerCase()
+              : "None"}
           </div>
 
           <button
