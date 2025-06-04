@@ -1,7 +1,3 @@
-// src/components/PredictionDisplay.js
-
-import React from "react";
-
 const PredictionDisplay = ({ prediction }) => {
   if (!prediction) return null;
 

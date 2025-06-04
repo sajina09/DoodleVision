@@ -1,7 +1,9 @@
 /* eslint-disable no-unused-vars */
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CanvasDraw from "react-canvas-draw";
+import TranslucentRedBox from "./Overlay";
+import TimerPopup from "./Timer";
 
 const DrawingBoard = () => {
   const canvasRef = useRef(null);
@@ -9,8 +11,16 @@ const DrawingBoard = () => {
 
   const [canvasSize, setCanvasSize] = useState({ width: 600, height: 400 });
   const [prediction, setPrediction] = useState("");
-  const [generatedImage, setGeneratedImage] = useState(null);
-  const [reconstructedImage, setReconstructedImage] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
+
+  const [storyEn, setStoryEn] = useState(" Your story will appear here");
+  const [storyNe, setStoryNe] = useState("Wait for it!! ");
+
+  // For the time modal takes to output
+  const [showTimerPopup, setShowTimerPopup] = useState(false);
+  const [timerText, setTimerText] = useState("Predicting...");
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
   const [loading, setLoading] = useState(false);
 
   // 📏 Handle resizing
@@ -46,57 +56,46 @@ const DrawingBoard = () => {
   const handlePredict = async () => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current.canvas.drawing;
-    setLoading(true);
+
+    setPrediction("None");
+    setShowPopup(false);
+    setShowTimerPopup(true);
+    setElapsedSeconds(0);
+
+    // Start counting up
+    const timer = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+    }, 1000);
 
     canvas.toBlob(async (blob) => {
       const formData = new FormData();
       formData.append("file", blob, "doodle.png");
 
       try {
-        // First predict -
         const predictResponse = await fetch("http://127.0.0.1:8000/predict", {
           method: "POST",
           body: formData,
         });
-        const predictData = await predictResponse.json();
-        setPrediction(predictData.prediction);
 
-        // Then fetch generated and reconstructed
-        // await fetchGeneratedAndReconstructedImage(blob, predictData.prediction);
+        const predictedData = await predictResponse.json();
+        setPrediction(predictedData.prediction);
+        setStoryEn(predictedData.story);
+        setShowPopup(true);
       } catch (error) {
-        console.error("Prediction or Generation error:", error);
-        showErrorNotification("Umm... there seems to be an error 😬");
+        console.error("Prediction error:", error);
+        showErrorNotification("😬 Something went wrong");
       } finally {
-        setLoading(false);
+        clearInterval(timer);
+        setShowTimerPopup(false);
       }
     });
-  };
-
-  // 🎨 Fetch generated and reconstructed images
-  const fetchGeneratedAndReconstructedImage = async (blob, predictedClass) => {
-    const formData = new FormData();
-    formData.append("file", blob, "doodle.png");
-    formData.append("label", predictedClass);
-
-    try {
-      const response = await fetch("http://127.0.0.1:8000/generate", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      setGeneratedImage(data.generated_image); // new generated sketch
-      setReconstructedImage(data.reconstructed_image); // enhanced user sketch
-    } catch (error) {
-      console.error("Error fetching generated/reconstructed image:", error);
-    }
   };
 
   // 🧹 Clear everything
   const handleClear = () => {
     canvasRef.current.clear();
     setPrediction("");
-    setGeneratedImage(null);
-    setReconstructedImage(null);
+    setShowPopup(false);
     setLoading(false);
   };
 
@@ -183,7 +182,7 @@ const DrawingBoard = () => {
               borderRadius: "30px",
               cursor: "pointer",
               transition: "0.3s",
-              boxShadow: "0 0 10px #ff4081aa",
+              boxShadow: "0 0 5px #ff4081aa",
             }}
           >
             Clear
@@ -212,64 +211,19 @@ const DrawingBoard = () => {
         </div>
       </div>
 
-      {/* ✨ Right Side: Model Outputs */}
-      {/* <div
-        style={{
-          flex: 1,
-          background: "#111",
-          border: "2px solid #00ffff88",
-          borderRadius: "20px",
-          boxShadow: "0 0 20px #00ffff55",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "20px",
-        }}
-      >
-        {generatedImage || reconstructedImage ? (
-          <>
-            <h3 style={{ color: "#00ffff" }}>Generated Sketch</h3>
-            {generatedImage && (
-              <img
-                // src={`data:image/png;base64,${generatedImage}`}
-                src={generatedImage}
-                alt="Generated"
-                style={{
-                  width: "80%",
-                  marginBottom: "20px",
-                  borderRadius: "10px",
-                  boxShadow: "0 0 15px #00ffff88",
-                }}
-              />
-            )}
+      {/* ✨ Transparent Story tale */}
 
-            <h3 style={{ color: "#ff4081" }}>Reconstructed Sketch</h3>
-            {reconstructedImage && (
-              <img
-                // src={`data:image/png;base64,${reconstructedImage}`}
-                src={reconstructedImage}
-                alt="Reconstructed"
-                style={{
-                  width: "80%",
-                  borderRadius: "10px",
-                  boxShadow: "0 0 15px #ff4081aa",
-                }}
-              />
-            )}
-          </>
-        ) : (
-          <p
-            style={{
-              color: "#00ffff",
-              fontSize: "20px",
-              fontWeight: "bold",
-            }}
-          >
-            ✨ Model will generate after you Predict!
-          </p>
-        )}
-      </div> */}
+      {showPopup && (
+        <TranslucentRedBox
+          title={prediction}
+          englishStory={storyEn}
+          nepaliStory={storyNe}
+          onClose={() => setShowPopup(false)}
+          timeTaken= {elapsedSeconds}
+        />
+      )}
+
+      {showTimerPopup && <TimerPopup seconds={elapsedSeconds} />}
     </div>
   );
 };
