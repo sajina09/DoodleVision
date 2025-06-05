@@ -6,6 +6,10 @@ import TranslucentRedBox from "./Overlay";
 import TimerPopup from "./Timer";
 
 const DrawingBoard = () => {
+  const baseURL = "https://doodlevision-backend.onrender.com";
+  // const baseURL = process.env.REACT_APP_API_URL;
+
+
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -72,7 +76,7 @@ const DrawingBoard = () => {
       formData.append("file", blob, "doodle.png");
 
       try {
-        const predictResponse = await fetch("http://127.0.0.1:8000/predict", {
+        const predictResponse = await fetch(`${baseURL}/predict`, {
           method: "POST",
           body: formData,
         });
@@ -219,7 +223,7 @@ const DrawingBoard = () => {
           englishStory={storyEn}
           nepaliStory={storyNe}
           onClose={() => setShowPopup(false)}
-          timeTaken= {elapsedSeconds}
+          timeTaken={elapsedSeconds}
         />
       )}
 
